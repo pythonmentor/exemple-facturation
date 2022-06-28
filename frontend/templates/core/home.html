@@ -1,0 +1,18 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row">
+  <div class="col-12 text-center">
+    <h1>Bienvenu sur cette application de facturation</h1>
+    <p>
+      Voici l'exemple promis par rapport à <strong>l'usage des CBV Django de mise à jour
+        avec plusieurs formulaires</strong>. Il y a naturellement de multiple manières de
+      procéder. Nous allons étudier ensemble plusieurs possibilités et passer en même temps 
+      en revue certains principes de conception.
+    </p>
+    <p>
+      <a href="{% url 'invoices:list' %}" class="btn btn-warning"
+        >Accédez aux factures</a
+      >
+    </p>
+  </div>
+</div>
+{% endblock content %}
