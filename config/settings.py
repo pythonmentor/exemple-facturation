@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 
+from django.contrib.messages import constants as messages
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / 'frontend'
@@ -37,6 +39,7 @@ LOCAL_APPS = [
     'invoicing.core',
     'invoicing.invoices',
     'invoicing.products',
+    'invoicing.clients',
 ]
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -148,6 +151,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Multi-site configuration
 SITE_ID = 1
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-secondary',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}
 
 # Configuration of django-crispy-forms for bootstrap 5
 
