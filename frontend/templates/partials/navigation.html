@@ -14,6 +14,10 @@
             {% url 'invoices:list' as invoices_list_url %}
             <a class="nav-link{% if invoices_list_url == request.path %} active{% endif %}" href="{{ invoices_list_url }}">Factures{% if invoices_list_url == request.path %} <span class="visually-hidden">(courante)</span>{% endif %}</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin:index' %}" target="_blank">Admin</a>
+          </li>
+          
       </div>
     </div>
   </nav>

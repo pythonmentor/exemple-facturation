@@ -9,9 +9,6 @@ class Product(models.Model):
 
     name = models.CharField(_('name'), max_length=150)
     description = models.TextField(_('description'), blank=True)
-    price = models.DecimalField(
-        _('unit price'), null=True, blank=True, decimal_places=2, max_digits=8
-    )
 
     # Utility fields
     slug = models.SlugField(
@@ -32,7 +29,7 @@ class Product(models.Model):
         verbose_name_plural = _('products')
 
     def __str__(self):
-        return f'{self.name} - {self.price} EUR'
+        return f'{self.name}'
 
     def get_absolute_url(self):
         return reverse('products:detail', kwargs={'slug': self.slug})
@@ -41,3 +38,31 @@ class Product(models.Model):
         if self.slug is None:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+
+
+class Price(models.Model):
+    """Represents a price with value and currency."""
+
+    class Currencies(models.TextChoices):
+        EUROS = '€', _('EUR')
+        SWISS_FRANCS = 'C', _('CHF')
+        DOLLARS = '$', _('USD')
+
+    product = models.ForeignKey(
+        'Product', on_delete=models.CASCADE, related_name='prices'
+    )
+    value = models.DecimalField(
+        _('unit price'), decimal_places=2, max_digits=8
+    )
+    currency = models.CharField(
+        _('currency'),
+        choices=Currencies.choices,
+        default=Currencies.EUROS,
+        max_length=1,
+    )
+    date_created = models.DateTimeField(
+        _('date of creation'), auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ['-date_created']

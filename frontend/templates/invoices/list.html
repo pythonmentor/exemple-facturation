@@ -1,1 +1,39 @@
 {% extends 'base.html' %}
+
+{% block title %}Mes factures | Application de facturation{% endblock title %}
+
+{% block content %}
+<div class="row">
+    <h1>Mes Factures</h1>
+    {% if invoices %}
+    <p>Voici la liste des factures que vous avez créées:</p>
+    {% else %}
+    <p>Vous n'avons pas encore enregistré de factures.</p>
+    {% endif %}
+    <ul class="col-12">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">N° de facture</th>
+                <th scope="col">Titre</th>
+                <th scope="col">Client</th>
+                <th scope="col">Date de création</th>
+                <th scope="col">Dernière mise à jour</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for invoice in invoices %}
+              <tr>
+                <th scope="row"><a href="{% url 'invoices:detail' slug=invoice.slug %}">{{ invoice.number }}</a></th>
+                <td>{{ invoice.title }}</td>
+                <td>{% if invoice.client %}{{ invoice.client.name }}{% endif %}</td>
+                <td>{{ invoice.date_created|date:"j F Y à H:i"}}</td>
+                <td>{{ invoice.last_updated|date:"j F Y à H:i"}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+    </ul>
+</div>
+{% endblock content %}
+

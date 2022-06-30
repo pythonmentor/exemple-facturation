@@ -1,0 +1,113 @@
+{% extends 'base.html' %}   
+
+{% block title %}Facture {{ invoice.number }} | Vue détaillée{% endblock title %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-5">Details de la facture {{ invoice.number }}</h1>
+
+        <!-- Données générales de la facture -->
+        <section class="mb-5">
+            <h2>Données générales</h2>
+            <table class="table">
+                <tbody>
+                <tr>
+                    <th scope="row">Numéro de référence</th>
+                    <td>{{ invoice.number }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Titre</th>
+                    <td>{{ invoice.title }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Délai</th>
+                    <td>{{ invoice.get_payment_term_display }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Date limite</th>
+                    <td>{% if invoice.due_date %}{{ invoice.due_date|date:"j F Y" }}{% endif %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Devise</th>
+                    <td>{{ invoice.get_currency_display }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Taux de TVA</th>
+                    <td>{% if invoice.amount_vat %}{{ invoice.amount_vat }} %{% endif %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Exempté de TVA?</th>
+                    <td>{% if invoice.exemption_vat %}Oui{% else %}Non{% endif %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Notes</th>
+                    <td>{{ invoice.notes }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Status</th>
+                    <td>{{ invoice.status }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Client</th>
+                    <td>{% if invoice.client %}{{ invoice.client.name }}{% else %}-{% endif %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Date de création</th>
+                    <td>{{ invoice.date_created|date:"j F Y à H:i" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Dernière mise à jour</th>
+                    <td>{{ invoice.last_updated|date:"j F Y à H:i" }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Produits commandés -->
+        <section class="mb-5">
+            <h2>Produits commandés</h2>
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Position</th>
+                    <th scope="col">Product name</th>
+                    <th scope="col">Prix unitaire</th>
+                    <th scope="col">Quantité</th>
+                    <th scope="col">Prix total</th>
+                    <th scope="col">Devise</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for invoice_line in invoice.invoice_lines.all %}
+                  <tr>
+                    <th scope="row">{{ forloop.counter }}</a></th>
+                    <td>{{ invoice_line.product.name }}</td>
+                    <td>{% if invoice_line.price %}{{ invoice_line.price.value }}{% endif %}</td>
+                    <td>{% if invoice_line.quantity %}{{ invoice_line.quantity }}{% endif %}</td>
+                    <td>{{ invoice_line.total_price }}</td>
+                    <td>{{ invoice.get_currency_display }}</td>
+                  </tr>
+                  {% if forloop.last %}
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <th scope="row">Total</th>
+                    <td>{{ invoice.total_price }}</td>
+                    <td>{{ invoice.get_currency_display }}</td>
+                  </tr>
+                  {% endif %}
+                  {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+</div>
+{% endblock content %}
+
+name
+description
+price
+quantity

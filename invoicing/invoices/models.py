@@ -1,5 +1,7 @@
+from tabnanny import verbose
 from uuid import uuid4
 from datetime import timedelta
+from decimal import Decimal
 
 from errno import EAFNOSUPPORT
 from django.db import models
@@ -24,6 +26,7 @@ class Invoice(models.Model):
 
     class Currencies(models.TextChoices):
         EUROS = '€', _('EUR')
+        SWISS_FRANCS = 'C', _('CHF')
         DOLLARS = '$', _('USD')
 
     class Statuses(models.IntegerChoices):
@@ -87,6 +90,12 @@ class Invoice(models.Model):
         related_name='invoices',
     )
 
+    products = models.ManyToManyField(
+        'products.Product',
+        related_name='invoices',
+        through='InvoiceLine',
+    )
+
     # Utility
     slug = models.SlugField(
         _('slug'),
@@ -117,8 +126,60 @@ class Invoice(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(f'{self.number}')
-        if self.last_updated is None:
-            self.last_updated = timezone.now()
-        self.due_date = self.last_updated + timedelta(days=self.payment_term)
-
         super().save(*args, **kwargs)
+        self.due_date = self.last_updated + timedelta(days=self.payment_term)
+        super().save(*args, **kwargs)
+
+    @property
+    def total_price(self):
+        total = Decimal("0.0")
+        for invoice_line in self.invoice_lines.all():
+            total += invoice_line.total_price
+        return total
+
+
+class InvoiceLine(models.Model):
+    invoice = models.ForeignKey(
+        'Invoice',
+        verbose_name=_('invoice'),
+        on_delete=models.CASCADE,
+        related_name='invoice_lines',
+    )
+    product = models.ForeignKey(
+        'products.Product',
+        verbose_name=_('product'),
+        on_delete=models.CASCADE,
+        related_name='invoice_lines',
+    )
+    quantity = models.IntegerField(
+        _('quantity'),
+        null=True,
+        blank=True,
+        default=1,
+    )
+
+    date_created = models.DateTimeField(
+        _('date of addition'),
+        auto_now_add=True,
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = _('invoice line')
+        verbose_name_plural = _('invoice lines')
+
+    @property
+    def price(self):
+        prices = self.product.prices.filter(
+            currency=self.invoice.currency, date_created__lt=self.date_created
+        )
+        if prices:
+            return prices.first()
+        return None
+
+    @property
+    def total_price(self):
+        if self.price is not None and self.quantity is not None:
+            return self.quantity * self.price.value
+        return Decimal('0.0')
